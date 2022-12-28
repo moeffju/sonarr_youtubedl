@@ -348,7 +348,7 @@ class SonarrYTDL(object):
                         found, dlurl = self.ytsearch(ydleps, url)
                         if found:
                             logger.info("    {}: Found - {}:".format(e + 1, eps['title']))
-                            ytdl_format_options = {
+                            ytd_options = {
                                 'format': self.ytdl_format,
                                 'quiet': True,
                                 'merge-output-format': 'mp4',
@@ -361,10 +361,11 @@ class SonarrYTDL(object):
                                 ),
                                 'progress_hooks': [ytdl_hooks],
                                 'noplaylist': True,
+                                'usenetrc': True,
                             }
-                            ytdl_format_options = self.appendcookie(ytdl_format_options, cookies)
+                            ytd_options = self.appendcookie(ytd_options, cookies)
                             if 'format' in ser:
-                                ytdl_format_options = self.customformat(ytdl_format_options, ser['format'])
+                                ytd_options = self.customformat(ytd_options, ser['format'])
                             if 'subtitles' in ser:
                                 if ser['subtitles']:
                                     postprocessors = []
@@ -375,7 +376,7 @@ class SonarrYTDL(object):
                                     postprocessors.append({
                                         'key': 'FFmpegEmbedSubtitle',
                                     })
-                                    ytdl_format_options.update({
+                                    ytd_options.update({
                                         'writesubtitles': True,
                                         'allsubtitles': True,
                                         'writeautomaticsub': True,
@@ -385,15 +386,15 @@ class SonarrYTDL(object):
 
 
                             if self.debug is True:
-                                ytdl_format_options.update({
+                                ytd_options.update({
                                     'quiet': False,
                                     'logger': YoutubeDLLogger(),
                                     'progress_hooks': [ytdl_hooks_debug],
                                 })
                                 logger.debug('Youtube-DL opts used for downloading')
-                                logger.debug(ytdl_format_options)
+                                logger.debug(ytd_options)
                             try:
-                                youtube_dl.YoutubeDL(ytdl_format_options).download([dlurl])
+                                youtube_dl.YoutubeDL(ytd_options).download([dlurl])
                                 self.rescanseries(ser['id'])
                                 logger.info("      Downloaded - {}".format(eps['title']))
                             except Exception as e:
